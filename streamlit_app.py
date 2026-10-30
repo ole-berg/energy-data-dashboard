@@ -1,6 +1,7 @@
 import streamlit as st
 import psycopg2
 import pandas as pd
+from zoneinfo import ZoneInfo
 
 
 def load_data():
@@ -10,7 +11,7 @@ def load_data():
     results = cur.fetchall()
     data = pd.DataFrame(results, columns=["timestamp", "price"])
     data["price"] = data["price"].astype(float)
-    data["timestamp"] = pd.to_datetime(data["timestamp"])
+    data["timestamp"] = pd.to_datetime(data["timestamp"]).tz_convert(ZoneInfo("Europe/Berlin"))
     return data
 
 data = load_data()
