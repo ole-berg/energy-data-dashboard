@@ -11,7 +11,7 @@ def load_data():
     results = cur.fetchall()
     data = pd.DataFrame(results, columns=["timestamp", "price"])
     data["price"] = data["price"].astype(float)
-    data["timestamp"] = pd.to_datetime(data["timestamp"]).tz_localize(tz="utc").tz_convert(tz=ZoneInfo("Europe/Berlin"))
+    data["timestamp"] = pd.to_datetime(data["timestamp"]).dt.tz_localize(tz="utc").tz_convert(tz=ZoneInfo("Europe/Berlin"))
     return data
 
 data = load_data()
