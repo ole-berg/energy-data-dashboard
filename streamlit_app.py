@@ -17,3 +17,4 @@ st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
 )
 st.dataframe(data)
+st.line_chart(data)
