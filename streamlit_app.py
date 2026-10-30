@@ -9,6 +9,7 @@ def load_data():
     cur.execute("SELECT timestamp, price FROM day_ahead WHERE timestamp > now() - interval '1 week'")
     results = cur.fetchall()
     data = pd.DataFrame(results, columns=["timestamp", "price"])
+    data["price"] = data["price"].astype(float)
     return data
 
 data = load_data()
