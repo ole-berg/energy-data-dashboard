@@ -62,7 +62,7 @@ duration = st.slider("Duration in quarters", min_value=1, max_value=12, value=4)
 cheapest_price = get_cheapest_price(duration)
 time_to_wait = int((cheapest_price[0] - current_time).total_seconds() / 60)
 st.metric(
-    "Cheapest price for 2 hours",
+    f"Cheapest price for {duration} quarters",
     value=str(round(cheapest_price[1], 2)) + " ct/kW at " + str(cheapest_price[0].strftime("%H:%M")),
 )
 if time_to_wait < 15:
