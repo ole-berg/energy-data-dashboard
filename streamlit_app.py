@@ -34,7 +34,7 @@ next_price = (
     .sort_values(by="timestamp", ascending=True)
     .iloc[0]["price"]
 )
-st.metric("Price", value=current_price, delta=round(previous_price-current_price, 2), delta_color="inverse")
+st.metric("Price", value=current_price, delta=round(current_price-previous_price, 2), delta_color="inverse")
 st.title("🎈 My new app test")
 st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
