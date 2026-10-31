@@ -31,7 +31,9 @@ def get_cheapest_price(duration: int = 4):
     pure_next_prices = next_prices["price"].tolist()
     for idx, row in next_prices.iterrows():
         if idx <= len_prices - duration:
+            st.write(row["timestamp"], row["price"])
             cum_price = sum(pure_next_prices[idx:idx+duration])*0.25
+            st.write(cum_price)
             if cum_price < current_min[1]:
                 current_min = [row["timestamp"], cum_price]
         else:
