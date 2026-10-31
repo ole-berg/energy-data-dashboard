@@ -2,7 +2,7 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from zoneinfo import ZoneInfo
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def load_data():
@@ -24,16 +24,13 @@ def get_cheapest_price(duration: int = 4):
     next_prices = (
         data[data["timestamp"] > current_time]
         .sort_values(by="timestamp", ascending=True)
-        .head(duration)
-    )
+    ).reset_index(drop=True)
     len_prices = len(next_prices)
     current_min = [datetime.now(tz=ZoneInfo("Europe/Berlin")), 1000]
     pure_next_prices = next_prices["price"].tolist()
     for idx, row in next_prices.iterrows():
         if idx <= len_prices - duration:
-            print((row["timestamp"], row["price"]))
             cum_price = sum(pure_next_prices[idx:idx+duration])*0.25
-            print(cum_price)
             if cum_price < current_min[1]:
                 current_min = [row["timestamp"], cum_price]
         else:
@@ -53,7 +50,7 @@ next_price = (
     .iloc[0]["price"]
 )
 st.metric(
-    "Price",
+    "Current Price",
     value=str(current_price) + " ct",
     delta=round(current_price - previous_price, 2),
     delta_color="inverse",
@@ -61,14 +58,17 @@ st.metric(
     chart_data=current_prices["price"][-5:],
     chart_type="area",
 )
-cheapest_price = get_cheapest_price(4)
+duration = st.slider("Duration in quarters", min_value=1, max_value=12, value=4)
+cheapest_price = get_cheapest_price(duration)
+time_to_wait = int((cheapest_price[0] - current_time).total_seconds() / 60)
 st.metric(
-    "Cheapest price for 1 hour",
-    value=str(cheapest_price[1]) + " ct at " + str(cheapest_price[0]),
+    "Cheapest price for 2 hours",
+    value=str(round(cheapest_price[1], 2)) + " ct/kW at " + str(cheapest_price[0].strftime("%H:%M")),
 )
-st.title("🎈 My new app test")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
-)
+if time_to_wait < 15:
+    st.markdown(":loudspeaker: :shimmer[CHEAPEST PRICE NOW]")
+else:
+    st.markdown(f":alarm_clock: Next cheapest price in {str(timedelta(minutes=time_to_wait))[:-3]} hours.")
 st.dataframe(data)
-st.line_chart(data, x="timestamp", y="price")
+st.subheader("Price on " + str(current_time.strftime("%d.%m.%Y")))
+st.line_chart(data, x="timestamp", y="price", x_label="Time", y_label="Price")
