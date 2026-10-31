@@ -27,7 +27,7 @@ def get_cheapest_price(duration: int = 4):
         .head(duration)
     )
     len_prices = len(next_prices)
-    current_min = [datetime.now(tz=ZoneInfo("Europe/Berlin")), -1]
+    current_min = [datetime.now(tz=ZoneInfo("Europe/Berlin")), 1000]
     pure_next_prices = next_prices["price"].tolist()
     for idx, row in next_prices.iterrows():
         if idx <= len_prices - duration:
@@ -62,7 +62,7 @@ st.metric(
 cheapest_price = get_cheapest_price(4)
 st.metric(
     "Cheapest price for 1 hour",
-    value=str(cheapest_price[0]) + " ct at " + str(cheapest_price[1]),
+    value=str(cheapest_price[1]) + " ct at " + str(cheapest_price[0]),
 )
 st.title("🎈 My new app test")
 st.write(
