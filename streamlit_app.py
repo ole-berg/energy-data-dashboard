@@ -35,7 +35,7 @@ next_price = (
 )
 st.metric(
     "Price",
-    value=current_price,
+    value=str(current_price) + " ct",
     delta=round(current_price - previous_price, 2),
     delta_color="inverse",
     delta_description="vs. 15 min ago",
