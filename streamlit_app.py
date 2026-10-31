@@ -20,6 +20,23 @@ def load_data():
     data["price"] = data["price"].apply(lambda x: round(x/10, 2))
     return data
 
+def get_cheapest_price(duration: int = 4):
+    next_prices = (
+        data[data["timestamp"] > current_time]
+        .sort_values(by="timestamp", ascending=True)
+        .head(duration)
+    )
+    len_prices = len(next_prices)
+    current_min = [datetime.now(tz=ZoneInfo("Europe/Berlin")), -1]
+    pure_next_prices = next_prices["price"].tolist()
+    for idx, row in next_prices.iterrows():
+        if idx <= len_prices - duration:
+            cum_price = sum(pure_next_prices[idx:idx+duration])*0.25
+            if cum_price < current_min[1]:
+                current_min = [row["timestamp"], cum_price]
+        else:
+            return current_min
+    return current_min
 
 data = load_data()
 current_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
@@ -41,6 +58,11 @@ st.metric(
     delta_description="vs. 15 min ago",
     chart_data=current_prices["price"][-5:],
     chart_type="area",
+)
+cheapest_price = get_cheapest_price(4)
+st.metric(
+    "Cheapest price for 1 hour",
+    value=str(cheapest_price[0]) + " ct at " + str(cheapest_price[1]),
 )
 st.title("🎈 My new app test")
 st.write(
