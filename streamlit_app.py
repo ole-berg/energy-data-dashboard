@@ -17,6 +17,7 @@ def load_data():
     data["timestamp"] = pd.to_datetime(data["timestamp"]).dt.tz_convert(
         tz=ZoneInfo("Europe/Berlin")
     )
+    data["price"] = data["price"].apply(lambda x: round(x/10, 2))
     return data
 
 
