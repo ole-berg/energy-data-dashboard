@@ -2,6 +2,7 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from zoneinfo import ZoneInfo
+from datetime import datetime
 
 
 def load_data():
@@ -15,6 +16,9 @@ def load_data():
     return data
 
 data = load_data()
+current_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
+current_price = data[data["timestamp"] < current_time].sort_values(by="timestamp", ascending=False).iloc[0]["price"]
+st.metric("Price", value=current_price)
 st.title("🎈 My new app test")
 st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
