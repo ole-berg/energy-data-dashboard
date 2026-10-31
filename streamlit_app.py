@@ -24,11 +24,11 @@ data = load_data()
 current_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
 current_prices = (
     data[data["timestamp"] < current_time]
-    .sort_values(by="timestamp", ascending=False)
+    .sort_values(by="timestamp", ascending=True)
 
 )
-current_price = current_prices.iloc[0]["price"]
-previous_price = current_prices.iloc[1]["price"]
+current_price = current_prices.iloc[-1]["price"]
+previous_price = current_prices.iloc[-2]["price"]
 next_price = (
     data[data["timestamp"] > current_time]
     .sort_values(by="timestamp", ascending=True)
