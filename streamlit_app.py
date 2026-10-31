@@ -39,7 +39,7 @@ st.metric(
     delta_color="inverse",
     delta_description="vs. 15 min ago",
     chart_data=current_prices["price"][-5:],
-    chart_type="bar",
+    chart_type="area",
 )
 st.title("🎈 My new app test")
 st.write(
