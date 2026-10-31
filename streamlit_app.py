@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import psycopg2
 import pandas as pd
 from zoneinfo import ZoneInfo
@@ -13,7 +14,7 @@ def close_database_session(conn):
 def get_database_session():
     return psycopg2.connect(st.secrets["DATABASE_URL"])
 
-
+@st.cache_data(ttl="2h")
 def load_data():
     conn = get_database_session()
     cur = conn.cursor()
@@ -48,6 +49,7 @@ def get_cheapest_price(duration: int = 4):
             return current_min
     return current_min
 
+st_autorefresh(interval=60000)
 
 data = load_data()
 current_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
