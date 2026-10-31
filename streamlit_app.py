@@ -13,7 +13,6 @@ def close_database_session(conn):
         print(f"Error closing database session: {e}")
 
 
-@st.cache_resource(on_release=close_database_session, max_entries=1)
 def get_database_session():
     return psycopg2.connect(st.secrets["DATABASE_URL"])
 
@@ -25,6 +24,10 @@ def load_data():
         "SELECT timestamp, price FROM day_ahead WHERE timestamp > now() - interval '1 week'"
     )
     results = cur.fetchall()
+    try:
+        conn.close()
+    except Exception as e:
+        print(f"Error closing database session: {e}")
     data = pd.DataFrame(results, columns=["timestamp", "price"])
     data["price"] = data["price"].astype(float)
     data["timestamp"] = pd.to_datetime(data["timestamp"]).dt.tz_convert(
