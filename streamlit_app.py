@@ -22,17 +22,19 @@ def load_data():
 
 data = load_data()
 current_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
-current_price = (
+current_prices = (
     data[data["timestamp"] < current_time]
     .sort_values(by="timestamp", ascending=False)
-    .iloc[0]["price"]
+
 )
+current_price = current_prices.iloc[0]["price"]
+previous_price = current_prices.iloc[1]["price"]
 next_price = (
     data[data["timestamp"] > current_time]
     .sort_values(by="timestamp", ascending=True)
     .iloc[0]["price"]
 )
-st.metric("Price", value=current_price, delta=round(next_price-current_price, 2), delta_color="inverse")
+st.metric("Price", value=current_price, delta=round(previous_price-current_price, 2), delta_color="inverse")
 st.title("🎈 My new app test")
 st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
