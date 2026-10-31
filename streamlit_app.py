@@ -7,7 +7,10 @@ from datetime import datetime, timedelta
 
 
 def close_database_session(conn):
-    conn.close()
+    try:
+        conn.close()
+    except Exception as e:
+        print(f"Error closing database session: {e}")
 
 
 @st.cache_resource(on_release=close_database_session, max_entries=1)
