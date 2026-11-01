@@ -34,7 +34,11 @@ def load_data():
     data["timestamp"] = pd.to_datetime(data["timestamp"]).dt.tz_convert(
         tz=ZoneInfo("Europe/Berlin")
     )
-    data["working_price"] = data["price"].apply(lambda x: min(round(x / 10, 2) + st.secrets["ADDITIONAL_COSTS"], st.secrets["MAX_COSTS"]))
+    data["working_price"] = data["price"].apply(
+        lambda x: min(
+            round(x / 10, 2) + st.secrets["ADDITIONAL_COSTS"], st.secrets["MAX_COSTS"]
+        )
+    )
     return data
 
 
