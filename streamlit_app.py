@@ -17,7 +17,7 @@ def get_database_session():
     return psycopg2.connect(st.secrets["DATABASE_URL"])
 
 
-@st.cache_data(ttl="2h")
+@st.cache_data(ttl="10m")
 def load_data():
     conn = get_database_session()
     cur = conn.cursor()
