@@ -3,7 +3,7 @@ from streamlit_autorefresh import st_autorefresh
 import psycopg2
 import pandas as pd
 from zoneinfo import ZoneInfo
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 
 
 def close_database_session(conn):
@@ -22,7 +22,7 @@ def load_data():
     conn = get_database_session()
     cur = conn.cursor()
     cur.execute(
-        "SELECT timestamp, price FROM day_ahead WHERE timestamp > now() - interval '1 week'"
+        "SELECT timestamp, price FROM day_ahead ORDER BY timestamp ASC"
     )
     results = cur.fetchall()
     try:
@@ -81,6 +81,13 @@ next_price = (
     .sort_values(by="timestamp", ascending=True)
     .iloc[0]["working_price"]
 )
+tomorrow = datetime.combine(date.today(), time(12, 0, 0), tzinfo=ZoneInfo("Europe/Berlin")) + timedelta(hours=24)
+data_tomorrow_available = not data[data["timestamp"] > tomorrow].empty
+if data_tomorrow_available:
+    st.success("Data for the next day is available.")
+else:
+    st.warning("No data available for the next day.")
+
 st.metric(
     "Current Price",
     value=str(current_price) + " ct",
@@ -90,6 +97,8 @@ st.metric(
     chart_data=current_prices["working_price"][-5:],
     chart_type="area",
 )
+
+
 duration = st.slider("Duration in quarters", min_value=1, max_value=12, value=4)
 cheapest_price = get_cheapest_price(duration)
 time_to_wait = int((cheapest_price[0] - current_time).total_seconds() / 60)
@@ -105,6 +114,16 @@ else:
     st.markdown(
         f":alarm_clock: Next cheapest price in {str(timedelta(minutes=time_to_wait))[:-3]} hours."
     )
-st.dataframe(data)
-st.subheader("Price on " + str(current_time.strftime("%d.%m.%Y")))
-st.line_chart(data, x="timestamp", y="price", x_label="Time", y_label="Price")
+data_for_chart = data[data["timestamp"] > datetime.combine(date.today(), time(0, 0, 0), tzinfo=ZoneInfo("Europe/Berlin"))].sort_values(
+    by="timestamp", ascending=True
+)
+if data_tomorrow_available:
+    st.subheader("Price on " + str(current_time.strftime("%d.%m.%Y") + " and " + str((current_time + timedelta(days=1)).strftime("%d.%m.%Y"))))
+else:
+    st.subheader("Price on " + str(current_time.strftime("%d.%m.%Y")))
+data_for_chart["ceiling"] = st.secrets["MAX_COSTS"]
+st.line_chart(data_for_chart[["timestamp", "price", "working_price", "ceiling"]], x="timestamp", x_label="Time", y_label="Price")
+with st.expander("Raw data"):
+    st.dataframe(data_for_chart)
+with st.expander("Historical data"):
+    st.line_chart(data, x="timestamp", y="price", x_label="Time", y_label="Price")
